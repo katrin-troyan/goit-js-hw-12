@@ -12,6 +12,8 @@ const loadBtn = document.querySelector('.load-more');
 let page = 1;
 let query = '';
 let totalHits = 0;
+const perPage = 40;
+const lastPerPage = 15;
 
 function showLoader() {
   loader.classList.add('active');
@@ -45,7 +47,7 @@ form.addEventListener('submit', async event => {
   hideLoadBtn();
 
   try {
-    const data = await fetchImages(query, page);
+    const data = await fetchImages(query, page, perPage);
     const images = data.hits;
 
     hideLoader();
@@ -63,7 +65,7 @@ form.addEventListener('submit', async event => {
     renderImages(images);
     form.reset();
     totalHits = data.totalHits;
-    if (totalHits > page * 40) showLoadBtn();
+    if (totalHits > page * perPage) showLoadBtn();
   } catch (error) {
     hideLoader();
 
@@ -81,9 +83,14 @@ loadBtn.addEventListener('click', async () => {
   showLoader();
 
   try {
-    const data = await fetchImages(query, page);
-    const images = data.hits;
+    const lastPage = Math.ceil(totalHits / perPage);
+    const isLastPage = page === lastPage;
+    const currentPerPage = isLastPage ? lastPerPage : perPage;
+
+    const data = await fetchImages(query, page, currentPerPage);
     hideLoader();
+
+    const images = data.hits;
     renderImages(images);
 
     const { height } = document
@@ -91,7 +98,7 @@ loadBtn.addEventListener('click', async () => {
       .getBoundingClientRect();
     window.scrollBy({ top: height * 2, behavior: 'smooth' });
 
-    if (images.length < 40 || page * 40 >= totalHits) {
+    if (page >= lastPage) {
       hideLoadBtn();
       iziToast.info({
         message: "We're sorry, but you've reached the end of search results.",
