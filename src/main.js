@@ -101,7 +101,7 @@ loadBtn.addEventListener('click', async () => {
     if (page >= lastPage) {
       hideLoadBtn();
       iziToast.info({
-        message: "We're sorry, but you've reached the end of search results.",
+        message: "We're sorry, but you've reached the end of search results",
         position: 'topRight',
       });
     }
